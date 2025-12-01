@@ -6,7 +6,21 @@ const api = axiosInstance;
 
 // Create public API instance without auth interceptor
 const publicApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api'),
+  baseURL: (() => {
+    const rawUrl = import.meta.env.VITE_API_URL || '';
+    if (!rawUrl || rawUrl.trim() === '') {
+      return import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api';
+    }
+    let u = rawUrl.trim().replace(/\/+$/, '');
+    if (import.meta.env.PROD && u.includes('localhost')) {
+      console.warn('🚨 postService Production override: localhost API URL detected, switching to deployed backend', u);
+      return 'https://global-bene-1.onrender.com/api';
+    }
+    if (!/\/api(\/|$)/i.test(u)) {
+      u += '/api';
+    }
+    return u;
+  })(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
