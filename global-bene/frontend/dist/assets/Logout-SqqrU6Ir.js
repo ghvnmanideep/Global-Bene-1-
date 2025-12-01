@@ -1,0 +1,1 @@
+import{u as t,r as o}from"./router-DiqerDgP.js";import"./vendor-Bzgz95E1.js";function r(){const e=t();return o.useEffect(()=>{sessionStorage.removeItem("accessToken"),e("/home")},[e]),null}export{r as default};

@@ -1,0 +1,1 @@
+import{a as o}from"./index-DDEPdpRf.js";const e=o,t={searchUsers:s=>e.get("/users/search",{params:s}),getUserById:s=>e.get(`/users/${s}`),followUser:s=>e.post(`/users/follow/${s}`),unfollowUser:s=>e.post(`/users/unfollow/${s}`)};export{t as u};

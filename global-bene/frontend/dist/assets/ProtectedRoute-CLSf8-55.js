@@ -1,0 +1,1 @@
+import{j as t}from"./ui-BaUVVAjf.js";import{O as e,N as o}from"./router-DiqerDgP.js";import"./vendor-Bzgz95E1.js";function c(){return sessionStorage.getItem("accessToken")?t.jsx(e,{}):t.jsx(o,{to:"/login"})}export{c as default};
