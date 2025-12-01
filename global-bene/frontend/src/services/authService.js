@@ -1,0 +1,69 @@
+import axiosInstance from '../utils/axiosinstance';
+
+// Use the centralized axios instance
+const api = axiosInstance;
+
+export const authService = {
+  // Authentication
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  verifyOtp: (data) => api.post('/auth/verify-otp', data),
+  forgot: (email) => api.post("/auth/forgot", { email }),
+  reset: (data) => api.post("/auth/reset", data),
+
+  // Profile
+  getMe: () => api.get("/users/me"),
+  updateProfile: (formData) =>
+    api.put("/users/update", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  changePassword: (newPassword) =>
+    api.put("/users/password", { newPassword }),
+
+  // Followers — ✅ matches backend routes
+  followUser: (userId) => api.post(`/users/${userId}/follow`),
+  unfollowUser: (userId) => api.post(`/users/${userId}/unfollow`),
+
+  // User utilities
+  searchUsers: (query) => api.get("/users/search", { params: { q: query } }),
+  getUserById: (id) => api.get(`/users/${id}`),
+  getUserComments: (userId) => api.get(`/users/${userId}/comments`),
+  getUserInteractionLogs: (userId) => api.get(`/activity-logs/my-activity-logs`),
+  // Admin services
+  admin: {
+    // User management
+    getAllUsers: (params) => api.get("/admin/users", { params }),
+    deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
+    updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role`, { role }),
+
+    // Post management
+    getAllPosts: (params) => api.get("/admin/posts", { params }),
+    deletePost: (postId) => api.delete(`/admin/posts/${postId}`),
+
+    // Notifications
+    sendNotificationToUser: (userId, data) => api.post(`/admin/notifications/user/${userId}`, data),
+    sendNotificationToAll: (data) => api.post("/admin/notifications/all", data),
+
+    // Dashboard
+    getDashboardStats: () => api.get("/admin/dashboard/stats"),
+
+    // Spam management
+    reportPost: (postId, reason) => api.post(`/admin/posts/${postId}/report`, { reason }),
+    getReportedPosts: (params) => api.get("/admin/posts/reported", { params }),
+    getSpamPosts: (params) => api.get("/admin/spam-posts", { params }),
+    restoreSpamPost: (id) => api.put(`/admin/spam-posts/${id}/restore`),
+    getUserSpamPosts: (userId) => api.get(`/admin/users/${userId}/spam-posts`),
+    toggleUserBan: (userId, data) => api.put(`/admin/users/${userId}/ban`, data),
+
+    // Community management
+    getAllCommunities: (params) => api.get("/admin/communities", { params }),
+    deleteCommunity: (communityId) => api.delete(`/admin/communities/${communityId}`),
+    updateCommunity: (communityId, data) => api.put(`/admin/communities/${communityId}`, data),
+    removeCommunityMember: (communityId, userId) => api.delete(`/admin/communities/${communityId}/members/${userId}`),
+
+    // Analytics (using existing dashboard stats for now)
+    getAnalyticsDashboard: () => api.get("/admin/dashboard/stats"),
+  },
+};
+
+export default authService;

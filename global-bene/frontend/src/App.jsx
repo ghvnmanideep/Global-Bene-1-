@@ -1,0 +1,289 @@
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { communityService } from './services/communityService';
+
+// Lazy load components for better performance
+const Home = lazy(() => import('./components/Home'));
+const Login = lazy(() => import('./components/Login'));
+const Register = lazy(() => import('./components/Register'));
+const VerifyEmail = lazy(() => import('./components/VerifyEmail'));
+const Profile = lazy(() => import('./components/Profile'));
+const EditProfile = lazy(() => import('./components/EditProfile'));
+const Logout = lazy(() => import('./components/Logout'));
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const CommunityList = lazy(() => import('./components/CommunityList'));
+const Search = lazy(() => import('./components/Search'));
+const CommunityDetail = lazy(() => import('./components/CommunityDetail'));
+const EditCommunity = lazy(() => import('./components/EditCommunity'));
+const PostDetail = lazy(() => import('./components/PostDetail'));
+const CreatePost = lazy(() => import('./components/CreatePost'));
+const CreateCommunity = lazy(() => import('./components/CreateCommunity'));
+const UserCommunities = lazy(() => import('./components/UserCommunities'));
+const ContactUs = lazy(() => import('./components/ContactUs'));
+const GLogin = lazy(() => import('./components/GLogin'));
+const AdminUserManagement = lazy(() => import('./components/AdminUserManagement'));
+const AdminPostManagement = lazy(() => import('./components/AdminPostManagement'));
+const AdminNotifications = lazy(() => import('./components/AdminNotifications'));
+const AdminSpamReports = lazy(() => import('./components/AdminSpamReports'));
+const AdminSpamManagement = lazy(() => import('./components/AdminSpamManagement'));
+const AdminCommunityManagement = lazy(() => import('./components/AdminCommunityManagement'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const AdminAnalytics = lazy(() => import('./components/AdminAnalytics'));
+const AdminContactMessages = lazy(() => import('./components/AdminContactMessages'));
+const About = lazy(() => import('./components/About'));
+const Privacy = lazy(() => import('./components/Privacy'));
+const AdminReports = lazy(() => import('./components/AdminReports'));
+const Notifications = lazy(() => import('./components/Notifications'));
+const ResetPassword = lazy(() => import('./components/ResetPassword'));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
+
+export default function App() {
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [communities, setCommunities] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [user, setUser] = useState(() => {
+    const storedUser = sessionStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!sessionStorage.getItem('accessToken'));
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const res = await communityService.getAllCommunities();
+        setCommunities(res.data.communities || []);
+      } catch (err) {
+        console.error('Error fetching communities:', err);
+      }
+    };
+    fetchCommunities();
+  }, []);
+
+  // Listen for login/logout events to update sidebar
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedUser = sessionStorage.getItem('user');
+      const token = sessionStorage.getItem('accessToken');
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+      setIsLoggedIn(!!token);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event for immediate updates
+    const handleAuthChange = () => {
+      const storedUser = sessionStorage.getItem('user');
+      const token = sessionStorage.getItem('accessToken');
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+      setIsLoggedIn(!!token);
+    };
+
+    window.addEventListener('authChange', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleTheme = () => setDarkMode((prev) => !prev);
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+
+  return (
+    <BrowserRouter>
+      <div className={`min-h-screen font-sans transition-colors duration-500 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'} flex`}>
+        {/* Mobile Overlay */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={toggleSidebar}
+          ></div>
+        )}
+
+        {/* Left Sidebar */}
+        <aside className={`min-h-screen bg-white/90 dark:bg-gray-900/90 shadow-md flex flex-col transition-all duration-300 z-50 ${sidebarOpen ? 'w-64' : 'w-0'} ${isMobile ? (sidebarOpen ? 'fixed' : 'hidden') : 'relative'}`}>
+          <div className="px-8 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <Link to="/" className={`text-3xl font-bold text-blue-600 dark:text-blue-400 hover:underline ${sidebarOpen ? '' : 'hidden'}`}>Global Bene</Link>
+            {isMobile && (
+              <button
+                onClick={toggleSidebar}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <nav className={`flex-1 py-4 space-y-4 ${sidebarOpen ? 'px-8' : 'px-4'}`}>
+            {/* Determine login state */}
+            {(() => {
+              if (isLoggedIn) {
+                return (
+                  <>
+                    {/* Profile Section */}
+                    <Link to="/profile" className={`border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 block hover:bg-gray-100 dark:hover:bg-gray-800 rounded px-2 py-1 ${sidebarOpen ? '' : 'justify-center'}`}>
+                      <div className={`flex items-center ${sidebarOpen ? 'space-x-3' : 'justify-center'}`}>
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                          {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        {sidebarOpen && (
+                          <div>
+                            <p className="font-semibold text-sm">{user?.username || 'User'}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    <Link to="/" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Home</Link>
+                    <Link to="/communities" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Communities</Link>
+                    <Link to="/my-communities" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Your Communities</Link>
+                    <Link to="/create-post" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Create Post</Link>
+                    <Link to="/create-community" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Create Community</Link>
+                    <Link to="/dashboard" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Dashboard</Link>
+                    {user?.role === 'admin' && (
+                      <Link to="/admin" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Admin Panel</Link>
+                    )}
+                    <Link to="/notifications" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Notifications</Link>
+                    <Link to="/profile" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>{sidebarOpen ? (user?.username || 'Profile') : '👤'}</Link>
+                    <Link to="/search" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Search</Link>
+                    <Link to="/contact" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Contact Us</Link>
+                  </>
+                );
+              } else {
+                return (
+                  <>
+                    <Link to="/" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Home</Link>
+                    <Link to="/communities" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Communities</Link>
+                    <Link to="/contact" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Contact Us</Link>
+                    <Link to="/login" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Login</Link>
+                    <Link to="/register" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Register</Link>
+                  </>
+                );
+              }
+            })()}
+            {/* Common Links */}
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                <Link to="/about" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>About Us</Link>
+                <Link to="/privacy" className={`block hover:underline ${sidebarOpen ? '' : 'text-center'}`} onClick={isMobile ? toggleSidebar : undefined}>Privacy Policy</Link>
+                {isLoggedIn && (
+                  <button
+                    onClick={() => {
+                      sessionStorage.clear();
+                      // Dispatch custom event to update sidebar immediately
+                      window.dispatchEvent(new Event('authChange'));
+                      window.location.href = '/';
+                    }}
+                    className={`w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow font-semibold ${sidebarOpen ? '' : 'px-2 text-sm'}`}
+                  >
+                    {sidebarOpen ? 'Logout' : '🚪'}
+                  </button>
+                )}
+                <button onClick={toggleTheme} className={`w-full px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white ${sidebarOpen ? '' : 'px-2 text-sm'}`} title="Toggle theme">
+                    {sidebarOpen ? (darkMode ? '🌞 Light' : '🌙 Dark') : (darkMode ? '🌞' : '🌙')}
+                </button>
+            </div>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          {/* Mobile Header */}
+          {isMobile && (
+            <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between md:hidden">
+              <button
+                onClick={toggleSidebar}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                ☰
+              </button>
+              <Link to="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">Global Bene</Link>
+              <div className="w-6"></div> {/* Spacer for centering */}
+            </header>
+          )}
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home darkMode={darkMode} />} />
+              <Route path="/home" element={<Home darkMode={darkMode} />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify" element={<VerifyEmail />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/auth/callback" element={<GLogin />} />
+              <Route path="/communities" element={<CommunityList />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/contact" element={<ContactUs darkMode={darkMode} />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/community/:id" element={<CommunityDetail />} />
+              <Route path="/community/:id/edit" element={<ProtectedRoute><EditCommunity /></ProtectedRoute>} />
+              <Route path="/post/:id" element={<PostDetail />} />
+
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/users" element={<AdminUserManagement />} />
+                <Route path="/admin/posts" element={<AdminPostManagement />} />
+                <Route path="/admin/communities" element={<AdminCommunityManagement />} />
+                <Route path="/admin/notifications" element={<AdminNotifications />} />
+                <Route path="/admin/spam" element={<AdminSpamReports />} />
+                <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
+                <Route path="/admin/spam-management" element={<AdminSpamManagement />} />
+                <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:id" element={<Profile />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/my-communities" element={<UserCommunities />} />
+                <Route path="/create-post" element={<CreatePost communities={communities} onClose={() => window.history.back()} onSuccess={() => window.location.href = '/dashboard'} />} />
+                <Route path="/create-community" element={<CreateCommunity onClose={() => window.history.back()} onSuccess={() => window.location.href = '/communities'} />} />
+              </Route>
+
+              {/* 404 Fallback */}
+              <Route path="*" element={
+                <div className="flex flex-col items-center justify-center h-[70vh] text-center p-4">
+                  <h1 className="text-6xl font-bold text-red-500 mb-4">404</h1>
+                  <p className="mb-4">Page Not Found</p>
+                  <Link to="/" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Go Home</Link>
+                </div>
+              } />
+            </Routes>
+          </Suspense>
+        </main>
+      </div>
+    </BrowserRouter>
+  );
+}
+
