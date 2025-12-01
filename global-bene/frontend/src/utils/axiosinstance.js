@@ -1,10 +1,11 @@
 
 import axios from 'axios';
 const rawApi = import.meta.env.VITE_API_URL || '';
-const DEFAULT_LOCAL = 'http://localhost:5000/api';
 
 function normalizeApiUrl(url) {
-  if (!url || url.trim() === '') return DEFAULT_LOCAL;
+  if (!url || url.trim() === '') {
+    return import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api';
+  }
   // remove trailing slash(es)
   let u = url.trim().replace(/\/+$/, '');
   // If user provided a URL that already includes '/api' segment, keep it.

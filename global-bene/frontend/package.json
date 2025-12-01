@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp dist/index.html dist/404.html",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "vite build",
+    "vercel-build": "vite build && cp dist/index.html dist/404.html",
     "type-check": "tsc --noEmit",
     "analyze": "vite build --mode analyze"
   },

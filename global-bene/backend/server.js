@@ -111,7 +111,8 @@ const corsOptions = {
       'http://localhost:5174',
       'https://localhost:5173',
       'https://localhost:5174',
-      'https://global-bene-qwnw.onrender.com'
+      'https://global-bene-qwnw.onrender.com',
+      'https://global-bene-1-1.onrender.com'
     ];
 
     // In production, add your frontend domain

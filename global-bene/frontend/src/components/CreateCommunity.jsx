@@ -44,7 +44,7 @@ export default function CreateCommunity({ onClose, onSuccess }) {
       if (iconFile) {
         const iconFormData = new FormData();
         iconFormData.append('image', iconFile);
-        const iconResponse = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/uploads/community-image', {
+        const iconResponse = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://global-bene-backend.onrender.com/api' : 'http://localhost:5000/api')) + '/uploads/community-image', {
           method: 'POST',
           body: iconFormData
         });
@@ -57,7 +57,7 @@ export default function CreateCommunity({ onClose, onSuccess }) {
       if (bannerFile) {
         const bannerFormData = new FormData();
         bannerFormData.append('image', bannerFile);
-        const bannerResponse = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/uploads/community-image', {
+        const bannerResponse = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://global-bene-backend.onrender.com/api' : 'http://localhost:5000/api')) + '/uploads/community-image', {
           method: 'POST',
           body: bannerFormData
         });
@@ -192,7 +192,7 @@ export default function CreateCommunity({ onClose, onSuccess }) {
                     // Upload to backend/cloudinary
                     const data = new FormData();
                     data.append('image', file);
-                    const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/uploads/community-image', {
+                    const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api')) + '/uploads/community-image', {
                       method: 'POST',
                       body: data
                     });
