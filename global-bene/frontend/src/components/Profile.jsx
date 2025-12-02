@@ -311,8 +311,8 @@ export default function Profile() {
             Followers ({followerCount})
           </h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {followersDetails.length > 0 ? (
-              followersDetails.map(user => (
+            {followersDetails.filter(user => user?._id).length > 0 ? (
+              followersDetails.filter(user => user?._id).map(user => (
                 <Link
                   to={`/profile/${user._id}`}
                   key={user._id}
@@ -341,8 +341,8 @@ export default function Profile() {
             Following ({followingCount})
           </h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {followingDetails.length > 0 ? (
-              followingDetails.map(user => (
+            {followingDetails.filter(user => user?._id).length > 0 ? (
+              followingDetails.filter(user => user?._id).map(user => (
                 <Link
                   to={`/profile/${user._id}`}
                   key={user._id}
@@ -426,7 +426,7 @@ export default function Profile() {
             ) : (
               <div className="space-y-4">
                 {profilePosts
-                  .filter(post => post.author && post.author._id === displayedId)
+                  .filter(post => post?.author?._id === displayedId)
                   .map(post => (
                     <div key={post._id} className="relative">
                       <PostCard post={post} onUpdate={() => {}} />
@@ -456,11 +456,11 @@ export default function Profile() {
         {activeTab === 'saved' && isOwnProfile && (
           <>
             <h2 className="text-2xl font-bold mb-4 text-orange-800">Saved Posts</h2>
-            {savedPosts.length === 0 ? (
+            {((savedPosts || []).filter(post => post?._id).length === 0) ? (
               <p className="p-8 text-center text-gray-500">No saved posts yet.</p>
             ) : (
               <div className="space-y-4">
-                {savedPosts.map(post => (
+                {(savedPosts || []).filter(post => post?._id).map(post => (
                   <PostCard key={post._id} post={post} onUpdate={() => {}} />
                 ))}
               </div>
@@ -471,11 +471,11 @@ export default function Profile() {
         {activeTab === 'comments' && isOwnProfile && (
           <>
             <h2 className="text-2xl font-bold mb-4 text-orange-800">My Comments</h2>
-            {userComments.length === 0 ? (
+            {((userComments || []).filter(comment => comment?._id && comment?.post?._id).length === 0) ? (
               <p className="p-8 text-center text-gray-500">No comments yet.</p>
             ) : (
               <div className="space-y-4">
-                {userComments.map(comment => (
+                {(userComments || []).filter(comment => comment?._id && comment?.post?._id).map(comment => (
                   <div key={comment._id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
@@ -510,11 +510,11 @@ export default function Profile() {
         {activeTab === 'activities' && isOwnProfile && (
           <>
             <h2 className="text-2xl font-bold mb-4 text-orange-800">Activity Logs</h2>
-            {userActivities.length === 0 ? (
+            {((userActivities || []).filter(activity => activity?.event_id).length === 0) ? (
               <p className="p-8 text-center text-gray-500">No activities yet.</p>
             ) : (
               <div className="space-y-4">
-                {userActivities.map(activity => (
+                {(userActivities || []).filter(activity => activity?.event_id).map(activity => (
                   <div key={activity.event_id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                     <div className="flex items-start space-x-4">
                       <div className="flex-shrink-0">
