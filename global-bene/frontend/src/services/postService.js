@@ -9,10 +9,10 @@ const publicApi = axios.create({
   baseURL: (() => {
     const rawUrl = import.meta.env.VITE_API_URL || '';
     if (!rawUrl || rawUrl.trim() === '') {
-      return import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api';
+      return import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://global-bene-1.onrender.com/api';
     }
     let u = rawUrl.trim().replace(/\/+$/, '');
-    if (import.meta.env.PROD && u.includes('localhost')) {
+    if (!import.meta.env.DEV && u.includes('localhost')) {
       console.warn('🚨 postService Production override: localhost API URL detected, switching to deployed backend', u);
       return 'https://global-bene-1.onrender.com/api';
     }

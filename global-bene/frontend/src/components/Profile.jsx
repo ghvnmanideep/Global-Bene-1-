@@ -41,11 +41,6 @@ export default function Profile() {
         .then((res) => setProfileUser(res.data))
         .catch((err) => {
           console.error('Error fetching user profile:', err);
-          if (!user) {
-            setMsg('Please login to see the users');
-          } else {
-            setMsg('User not found');
-          }
         });
     } else {
       setProfileUser(null); // Reset for own profile
@@ -54,7 +49,7 @@ export default function Profile() {
 
   const displayedId = profileUser?._id || user?._id;
   const isOwnProfile = !id || (user && profileUser && profileUser._id === user._id);
-  const isFollowing = user && profileUser && user.following && user.following.some(f => (typeof f === 'object' ? f._id : f) === profileUser._id);
+  const isFollowing = user && profileUser && user.following?.some(f => f && (typeof f === 'object' ? f._id : f) === profileUser._id);
   const refreshData = async () => {
     if (profileUser?._id) {
       const res = await authService.getUserById(profileUser._id);
@@ -201,12 +196,29 @@ export default function Profile() {
   const followerLabel = followerCount === 1 ? 'Follower' : 'Followers';
   const followingLabel = followingCount === 1 ? 'Following' : 'Following';
 
-  if (!user)
+  if (!user || (id && !profileUser)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
-        Loading profile or redirecting to login...
+        {id && !profileUser ? (
+          <div className="text-center p-8 max-w-md mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">User Not Found</h2>
+            <p className="mb-6 text-gray-600 dark:text-gray-300 text-sm md:text-base">The profile you&#x27;re looking for doesn&#x27;t exist or has been removed.</p>
+            <Link
+              to="/profile"
+              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              ← Go to Your Profile
+            </Link>
+          </div>
+        ) : (
+          <div className="p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-lg font-medium">Loading profile...</p>
+          </div>
+        )}
       </div>
     );
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-4">
@@ -370,12 +382,7 @@ export default function Profile() {
           <p className="text-gray-700 dark:text-gray-200 min-h-[32px]">{displayedUser.profile?.dob ? new Date(displayedUser.profile.dob).toLocaleDateString() : 'Not specified'}</p>
         </div>
       </div>
-      {/* Message Section */}
-      {msg && (
-        <p className={`mt-6 p-2 text-center rounded ${msg.includes('success') ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-          {msg}
-        </p>
-      )}
+      {/* Message Section - removed since handled in loading states */}
 
       {/* Tabs for Posts, Saved Posts, and Comments */}
       {isOwnProfile && (
@@ -482,8 +489,8 @@ export default function Profile() {
                         </div>
                         <p className="text-gray-700 dark:text-gray-300 mb-3">{comment.content}</p>
                         <div className="text-sm text-gray-500">
-                          <span>👍 {comment.upvotes || 0} upvotes</span>
-                          <span className="ml-4">👎 {comment.downvotes || 0} downvotes</span>
+                          <span>👍 {comment.upvotes?.length || 0} upvotes</span>
+                          <span className="ml-4">👎 {comment.downvotes?.length || 0} downvotes</span>
                         </div>
                       </div>
                       <button

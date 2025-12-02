@@ -4,11 +4,11 @@ const rawApi = import.meta.env.VITE_API_URL || '';
 
 function normalizeApiUrl(url) {
   if (!url || url.trim() === '') {
-    return import.meta.env.PROD ? 'https://global-bene-1.onrender.com/api' : 'http://localhost:5000/api';
+    return import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://global-bene-1.onrender.com/api';
   }
   // remove trailing slash(es)
   let u = url.trim().replace(/\/+$/, '');
-  if (import.meta.env.PROD && u.includes('localhost')) {
+  if (!import.meta.env.DEV && u.includes('localhost')) {
     console.warn('🚨 Production override: localhost API URL detected, switching to deployed backend', u);
     return 'https://global-bene-1.onrender.com/api';
   }
