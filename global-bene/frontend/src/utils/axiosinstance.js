@@ -1,25 +1,17 @@
 
 import axios from 'axios';
-const rawApi = import.meta.env.VITE_API_URL || '';
 
 function normalizeApiUrl(url) {
   if (!url || url.trim() === '') {
-    return import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://global-bene-1.onrender.com/api';
+    // Fallback for local development if VITE_API_URL is not set in .env
+    return 'http://localhost:5000/api';
   }
   // remove trailing slash(es)
   let u = url.trim().replace(/\/+$/, '');
-  if (!import.meta.env.DEV && u.includes('localhost')) {
-    console.warn('🚨 Production override: localhost API URL detected, switching to deployed backend', u);
-    return 'https://global-bene-1.onrender.com/api';
-  }
-  // If user provided a URL that already includes '/api' segment, keep it.
-  if (!/\/api(\/|$)/i.test(u)) {
-    u = `${u}/api`;
-  }
   return u;
 }
 
-const API_BASE = normalizeApiUrl(rawApi);
+const API_BASE = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_BASE,
